@@ -200,7 +200,7 @@ The `train_model.py` script can be used to train or retrain the Machine Learning
 
 ## 👩‍💻 Author
 
-**Eguduru Pushpa**
+**Karri Satya Reddy**
 
 ---
 
