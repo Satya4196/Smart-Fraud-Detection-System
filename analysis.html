@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Data Analysis | Fraud Detection System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow"><i class="bi bi-graph-up me-1"></i>Data Analysis</span>
+        <h1 class="page-title">Exploratory Data Visualisation</h1>
+        <p class="page-text">Statistical charts that illustrate the distribution of fraud, transaction types, amounts and feature correlations.</p>
+    </div>
+</section>
+
+<section class="pb-5 pt-4">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Fraud Distribution -->
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-pie-chart me-2" style="color:var(--primary);"></i>Fraud Distribution</h5>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.fraud_distribution) }}" class="img-fluid rounded-3" alt="Fraud distribution chart">
+                </div>
+            </div>
+            <!-- Transaction Type Distribution -->
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-bar-chart me-2" style="color:var(--accent);"></i>Transaction Type Distribution</h5>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.transaction_types) }}" class="img-fluid rounded-3" alt="Transaction type chart">
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-3">
+            <!-- Amount Histogram -->
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-histogram me-2" style="color:#6f42c1;"></i>Amount Histogram</h5>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.amount_histogram) }}" class="img-fluid rounded-3" alt="Amount histogram">
+                </div>
+            </div>
+            <!-- Correlation Heatmap -->
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-grid-3x3 me-2" style="color:var(--danger);"></i>Feature Correlation Heatmap</h5>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.heatmap) }}" class="img-fluid rounded-3" alt="Correlation heatmap">
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-3">
+            <div class="col-12">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-file-earmark-bar-graph me-2" style="color:var(--success);"></i>Transaction Count Over Time</h5>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.transaction_count) }}" class="img-fluid rounded-3" alt="Transaction count chart">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

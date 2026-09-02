@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Model Performance | Fraud Detection System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow dark">Model Performance</span>
+        <h1 class="page-title">Model evaluation metrics</h1>
+        <p class="page-text">These scores are calculated from the same feature pipeline used in the fraud prediction workflow.</p>
+    </div>
+</section>
+
+<section class="pb-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="comparison-table-card">
+                    <h5 class="fw-bold mb-3">Model Performance Comparison</h5>
+                    <p class="text-muted">Compare Accuracy, Precision, Recall, and F1 Score for all evaluated models side-by-side.</p>
+                    <div class="metrics-table-wrapper">
+                        <table class="metrics-table">
+                            <thead>
+                                <tr>
+                                    <th>Model Name</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1 Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for model_name, model_metrics in metrics.items() %}
+                                <tr class="{% if model_name == 'Random Forest' %}highlighted-row{% endif %}">
+                                    <td>
+                                        <span class="model-badge {% if model_name == 'Random Forest' %}rf{% elif model_name == 'Gradient Boosting' %}gb{% else %}lr{% endif %}">
+                                            {{ model_name }}
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold">{{ "%.4f"|format(model_metrics.accuracy) }}</td>
+                                    <td>{{ "%.4f"|format(model_metrics.precision) }}</td>
+                                    <td>{{ "%.4f"|format(model_metrics.recall) }}</td>
+                                    <td class="fw-bold text-primary">{{ "%.4f"|format(model_metrics.f1_score) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="chart-card">
+                    <div class="chart-card-header mb-3">
+                        <h5 class="fw-bold">Confusion Matrix</h5>
+                        <span>Visualizes correct and incorrect classifications for each algorithm</span>
+                    </div>
+                    
+                    <div class="confusion-tabs-nav">
+                        <button class="confusion-tab-btn active" data-target="rf-confusion">Random Forest</button>
+                        <button class="confusion-tab-btn" data-target="gb-confusion">Gradient Boosting</button>
+                        <button class="confusion-tab-btn" data-target="lr-confusion">Logistic Regression</button>
+                    </div>
+
+                    <div class="confusion-tab-panel active" id="rf-confusion">
+                        <img src="{{ url_for('static', filename=charts.confusion_matrix_random_forest) }}" alt="Random Forest Confusion matrix" class="img-fluid rounded-4">
+                    </div>
+                    <div class="confusion-tab-panel" id="gb-confusion">
+                        <img src="{{ url_for('static', filename=charts.confusion_matrix_gradient_boosting) }}" alt="Gradient Boosting Confusion matrix" class="img-fluid rounded-4">
+                    </div>
+                    <div class="confusion-tab-panel" id="lr-confusion">
+                        <img src="{{ url_for('static', filename=charts.confusion_matrix_logistic_regression) }}" alt="Logistic Regression Confusion matrix" class="img-fluid rounded-4">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="analysis-card h-100">
+                    <h5>Interpretation</h5>
+                    <p>The evaluation is computed on a held-out test split from {{ "{:,}".format(sample_size) }} sampled transactions.</p>
+                    <p>Accuracy shows overall correctness, but precision and recall are especially important for fraud detection because false alarms and missed frauds both have real business cost.</p>
+                    <p class="mb-0">This page makes the project more credible by showing not just predictions, but also how well the model performs.</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const tabButtons = document.querySelectorAll(".confusion-tab-btn");
+                const tabPanels = document.querySelectorAll(".confusion-tab-panel");
+
+                tabButtons.forEach(btn => {
+                    btn.addEventListener("click", function () {
+                        // Remove active class from buttons and panels
+                        tabButtons.forEach(b => b.classList.remove("active"));
+                        tabPanels.forEach(p => p.classList.remove("active"));
+
+                        // Add active class to clicked button
+                        btn.classList.add("active");
+
+                        // Add active class to matching panel
+                        const targetId = btn.getAttribute("data-target");
+                        const targetPanel = document.getElementById(targetId);
+                        if (targetPanel) {
+                            targetPanel.classList.add("active");
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <!-- Feature Importance Explorer Section -->
+        <div class="row g-4 mt-4">
+            <div class="col-lg-7">
+                <div class="analysis-card h-100">
+                    <h5 class="fw-bold mb-2">Model Feature Importance</h5>
+                    <p class="text-muted mb-4">Hover over or tap any transaction feature to explore what it means and how it influences the model's decision.</p>
+                    
+                    <div class="feature-importance-list">
+                        {% for feature in feature_importances %}
+                        <div class="feature-item-row {% if loop.first %}active{% endif %}" 
+                             data-feature-name="{{ feature.name }}"
+                             data-feature-display="{{ feature.display_name }}"
+                             data-feature-desc="{{ feature.description }}"
+                             data-feature-icon="{{ feature.icon }}"
+                             data-feature-percent="{{ '%.2f'|format(feature.percentage) }}%">
+                            <div class="feature-item-info">
+                                <span class="feature-item-icon-pill">
+                                    <i class="bi {{ feature.icon }}"></i>
+                                </span>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="feature-item-title">{{ feature.display_name }}</span>
+                                        <span class="feature-item-val fw-bold">{{ "%.2f"|format(feature.percentage) }}%</span>
+                                    </div>
+                                    <div class="progress feature-progress">
+                                        <div class="progress-bar feature-progress-bar" style="width: {{ feature.percentage }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="analysis-card h-100 p-4" id="featureDetailPanel">
+                    <div class="detail-card-inner text-center w-100">
+                        <span class="detail-icon-pill mb-3" id="detailIcon">
+                            <i class="bi {{ feature_importances[0].icon }}"></i>
+                        </span>
+                        <h4 class="fw-bold mb-2" id="detailTitle">{{ feature_importances[0].display_name }}</h4>
+                        <div class="badge bg-primary-soft text-primary px-3 py-2 mb-4 fs-6" id="detailPercent">
+                            Importance: {{ "%.2f"|format(feature_importances[0].percentage) }}%
+                        </div>
+                        <p class="text-muted fs-5 mb-0 px-2" id="detailDesc">
+                            {{ feature_importances[0].description }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const featureRows = document.querySelectorAll(".feature-item-row");
+                const detailPanel = document.getElementById("featureDetailPanel");
+                const detailIcon = document.getElementById("detailIcon");
+                const detailTitle = document.getElementById("detailTitle");
+                const detailPercent = document.getElementById("detailPercent");
+                const detailDesc = document.getElementById("detailDesc");
+
+                if (!featureRows.length || !detailPanel) return;
+
+                featureRows.forEach(row => {
+                    const updatePanel = () => {
+                        if (row.classList.contains("active")) return;
+                        
+                        // Remove active class from all rows
+                        featureRows.forEach(r => r.classList.remove("active"));
+                        // Add active class to current row
+                        row.classList.add("active");
+
+                        // Extract data attributes
+                        const display = row.getAttribute("data-feature-display");
+                        const desc = row.getAttribute("data-feature-desc");
+                        const icon = row.getAttribute("data-feature-icon");
+                        const percent = row.getAttribute("data-feature-percent");
+
+                        // Update detail panel with animation
+                        const inner = detailPanel.querySelector(".detail-card-inner");
+                        if (inner) {
+                            inner.style.opacity = 0;
+                            inner.style.transform = "translateY(6px)";
+                            
+                            setTimeout(() => {
+                                detailIcon.innerHTML = `<i class="bi ${icon}"></i>`;
+                                detailTitle.textContent = display;
+                                detailPercent.textContent = `Importance: ${percent}`;
+                                detailDesc.textContent = desc;
+                                
+                                inner.style.opacity = 1;
+                                inner.style.transform = "translateY(0)";
+                            }, 150);
+                        }
+                    };
+
+                    row.addEventListener("mouseenter", updatePanel);
+                    row.addEventListener("click", updatePanel);
+                });
+            });
+        </script>
+    </div>
+</section>
+{% endblock %}

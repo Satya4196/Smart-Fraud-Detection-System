@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Fraud Detection System{% endblock %}
+
+{% block content %}
+<!-- ── Hero Section ──────────────────────────────────────────────────────── -->
+<section class="hero-section">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="container hero-content">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="eyebrow"><i class="bi bi-shield-fill-check"></i> Machine Learning · Real-Time Detection</span>
+                <h1 class="hero-title mt-2 mb-3">
+                    Detect <span class="accent-word">Financial Fraud</span><br>
+                    with AI Precision
+                </h1>
+                <p class="hero-text">
+                    A professional fraud detection platform powered by Random Forest, Gradient Boosting, and Logistic Regression. Analyze patterns, run predictions, and explore insights from real transaction data.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a href="{{ url_for('predict_page') }}" class="btn btn-primary btn-lg px-4 py-3" id="getStartedBtn">
+                        <i class="bi bi-robot me-2"></i>Get Started — Predict Now
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg px-4 py-3">
+                        <i class="bi bi-speedometer2 me-2"></i>Open Dashboard
+                    </a>
+                </div>
+                <div class="hero-tags mt-4">
+                    <a href="{{ url_for('dashboard') }}"><i class="bi bi-graph-up me-1"></i>Real Dataset Visuals</a>
+                    <a href="{{ url_for('predict_page') }}"><i class="bi bi-lightning me-1"></i>Instant Predictions</a>
+                    <a href="{{ url_for('performance') }}"><i class="bi bi-trophy me-1"></i>99%+ Accuracy</a>
+                    <a href="{{ url_for('upload') }}"><i class="bi bi-cloud-upload me-1"></i>CSV Upload</a>
+                    <a href="{{ url_for('technologies') }}"><i class="bi bi-cpu me-1"></i>Tech Stack</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="glass-card">
+                    <div class="glass-card-top">
+                        <span class="status-dot"></span>
+                        Live Fraud Risk Overview
+                    </div>
+                    <div class="metric-stack">
+                        <div class="metric-item">
+                            <small><i class="bi bi-database me-1"></i>Transactions Analyzed</small>
+                            <strong>{{ "{:,}".format(stats.sample_size) }}</strong>
+                        </div>
+                        <div class="metric-item">
+                            <small><i class="bi bi-exclamation-triangle me-1"></i>Fraud Cases Detected</small>
+                            <strong style="color:#f35b6b;">{{ "{:,}".format(stats.fraud_transactions) }}</strong>
+                        </div>
+                        <div class="metric-item">
+                            <small><i class="bi bi-percent me-1"></i>Fraud Rate</small>
+                            <strong>{{ "%.3f"|format(stats.fraud_rate) }}%</strong>
+                        </div>
+                        <div class="metric-item">
+                            <small><i class="bi bi-trophy me-1"></i>Model Accuracy</small>
+                            <strong style="color:#2dd4bf;">{{ "%.2f"|format(stats.model_accuracy) }}%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Features Section ──────────────────────────────────────────────────── -->
+<section class="section-space">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow dark"><i class="bi bi-star-fill me-1"></i>Core Features</span>
+            <h2 class="mt-2">Everything you need for fraud analysis</h2>
+            <p class="page-text">A complete end-to-end platform — from raw transaction data to explainable AI predictions.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-3 fade-in-up">
+                <div class="info-card h-100">
+                    <span class="icon-pill"><i class="bi bi-database-check"></i></span>
+                    <h5>Real Dataset</h5>
+                    <p>Uses actual transaction features and fraud labels for interactive analysis and genuine predictions.</p>
+                    <a href="{{ url_for('analysis') }}" class="small fw-bold text-primary">Explore Data <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 fade-in-up">
+                <div class="info-card h-100">
+                    <span class="icon-pill"><i class="bi bi-robot"></i></span>
+                    <h5>3 ML Models</h5>
+                    <p>Choose between Random Forest, Gradient Boosting, or Logistic Regression for each prediction.</p>
+                    <a href="{{ url_for('predict_page') }}" class="small fw-bold text-primary">Try Prediction <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 fade-in-up">
+                <div class="info-card h-100">
+                    <span class="icon-pill"><i class="bi bi-cloud-upload"></i></span>
+                    <h5>Batch CSV Upload</h5>
+                    <p>Upload a CSV file and run fraud predictions on thousands of transactions at once. Download results.</p>
+                    <a href="{{ url_for('upload') }}" class="small fw-bold text-primary">Upload Now <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3 fade-in-up">
+                <div class="info-card h-100">
+                    <span class="icon-pill"><i class="bi bi-phone"></i></span>
+                    <h5>Fully Responsive</h5>
+                    <p>Works perfectly across desktop, laptop, tablet, and mobile. Supports dark and light mode.</p>
+                    <a href="{{ url_for('technologies') }}" class="small fw-bold text-primary">View Tech <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Stats Counters Section ─────────────────────────────────────────────── -->
+<section class="section-space section-muted">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-lg-3">
+                <div class="p-3">
+                    <div style="font-size:2.8rem;font-weight:800;background:linear-gradient(90deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" class="count-anim" data-target="{{ stats.sample_size }}">0</div>
+                    <div class="text-muted mt-1 fw-600">Total Transactions</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-3">
+                    <div style="font-size:2.8rem;font-weight:800;color:var(--danger);" class="count-anim" data-target="{{ stats.fraud_transactions }}">0</div>
+                    <div class="text-muted mt-1">Fraud Cases Found</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-3">
+                    <div style="font-size:2.8rem;font-weight:800;color:var(--success);" class="count-anim" data-target="{{ stats.legitimate_transactions }}">0</div>
+                    <div class="text-muted mt-1">Safe Transactions</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-3">
+                    <div style="font-size:2.8rem;font-weight:800;color:var(--accent);">3</div>
+                    <div class="text-muted mt-1">ML Models Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Workflow Section ───────────────────────────────────────────────────── -->
+<section class="section-space">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <span class="eyebrow dark"><i class="bi bi-diagram-3 me-1"></i>How It Works</span>
+                <h2 class="mt-2 mb-3">From input to prediction in seconds</h2>
+                <p class="page-text">The system guides every transaction through a multi-stage ML pipeline — cleaning, encoding, and scoring — before returning a colour-coded risk verdict with a confidence percentage.</p>
+                <a href="{{ url_for('predict_page') }}" class="btn btn-primary mt-3 px-4">
+                    <i class="bi bi-play-fill me-2"></i>Try It Now
+                </a>
+            </div>
+            <div class="col-lg-7">
+                <div class="workflow-steps">
+                    {% set steps = [
+                        ('bi-person-fill','1','Enter Transaction Details','Fill in amount, type, balances via the prediction form'),
+                        ('bi-server','2','Flask Backend Processes','Server validates and prepares the feature vector'),
+                        ('bi-gear-fill','3','Feature Engineering','Data is mapped, encoded, and normalized'),
+                        ('bi-robot','4','ML Model Predicts','Random Forest / GB / LR classifies the transaction'),
+                        ('bi-percent','5','Probability Calculated','Model outputs fraud probability with predict_proba()'),
+                        ('bi-shield-fill-check','6','Result & Dashboard','Colour-coded verdict + confidence score displayed')
+                    ] %}
+                    {% for icon, num, title, desc in steps %}
+                    <div class="workflow-step">
+                        <div class="workflow-step-content">
+                            <div class="workflow-step-num">{{ num }}</div>
+                            <div>
+                                <div style="font-weight:700;font-size:0.93rem;color:var(--text);">
+                                    <i class="bi {{ icon }} me-1" style="color:var(--primary);"></i>{{ title }}
+                                </div>
+                                <div style="font-size:0.82rem;color:var(--muted);">{{ desc }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if not loop.last %}<div class="workflow-connector"></div>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Feature Panels Section ────────────────────────────────────────────── -->
+<section class="section-space section-muted">
+    <div class="container">
+        <div class="section-heading text-center mx-auto">
+            <span class="eyebrow dark">All Pages</span>
+            <h2 class="mt-2">Complete fraud detection platform</h2>
+        </div>
+        <div class="row g-4">
+            {% set pages = [
+                ('bi-speedometer2','Dashboard','Track fraud distribution, statistics, and the latest prediction history.', 'dashboard'),
+                ('bi-graph-up','Data Analysis','Visualize fraud patterns with 5 charts — distribution, histogram, heatmap, and more.', 'analysis'),
+                ('bi-robot','Fraud Prediction','Submit transaction details and get instant fraud verdict with confidence score.', 'predict_page'),
+                ('bi-cloud-upload','Upload CSV','Batch predict fraud for thousands of transactions and download results as CSV.', 'upload'),
+                ('bi-clock-history','Prediction History','View all your past predictions in a searchable, downloadable table.', 'history'),
+                ('bi-bar-chart-line','Model Performance','Compare accuracy, precision, recall, F1 score and confusion matrices.', 'performance'),
+                ('bi-cpu','Technologies','Explore the full tech stack: Python, Flask, Scikit-learn, and more.', 'technologies'),
+                ('bi-question-circle','FAQ','Get answers to common questions about fraud detection and this system.', 'faq'),
+                ('bi-info-circle','About','Learn about the project, dataset, methodology, and model details.', 'about'),
+                ('bi-envelope','Contact','Reach out with questions or collaboration opportunities.', 'contact')
+            ] %}
+            {% for icon, title, desc, endpoint in pages %}
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="feature-panel h-100">
+                    <i class="bi {{ icon }} mb-2" style="font-size:1.5rem;color:var(--primary);display:block;"></i>
+                    <h5>{{ title }}</h5>
+                    <p class="mb-2">{{ desc }}</p>
+                    <a href="{{ url_for(endpoint) }}" class="small fw-bold text-primary">Open <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Animated counters
+const counters = document.querySelectorAll('.count-anim');
+const animateCounter = (el) => {
+    const target = parseInt(el.dataset.target, 10);
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(timer); }
+        el.textContent = Math.floor(current).toLocaleString();
+    }, 16);
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) { animateCounter(entry.target); observer.unobserve(entry.target); } });
+}, { threshold: 0.5 });
+
+counters.forEach(c => observer.observe(c));
+</script>
+{% endblock %}

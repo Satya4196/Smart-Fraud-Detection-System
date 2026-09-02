@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Fraud Detection System{% endblock %}
+
+{% block content %}
+<!-- ── Page Header ────────────────────────────────────────────────────────── -->
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow"><i class="bi bi-speedometer2 me-1"></i>Analytics</span>
+        <h1 class="page-title">Fraud Analytics Dashboard</h1>
+        <p class="page-text">Real-time overview of fraud distribution, transaction patterns, and key risk metrics from the dataset.</p>
+    </div>
+</section>
+
+<section class="pb-5 pt-4">
+    <div class="container">
+
+        <!-- ── Stat Cards ──────────────────────────────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-xl-2-4">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-blue"><i class="bi bi-database-fill"></i></div>
+                    <small>Total Transactions</small>
+                    <h3>{{ "{:,}".format(stats.sample_size) }}</h3>
+                    <div class="stat-card-glow" style="background:var(--primary);"></div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2-4">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <small>Fraud Cases</small>
+                    <h3 style="color:var(--danger);">{{ "{:,}".format(stats.fraud_transactions) }}</h3>
+                    <div class="stat-card-glow" style="background:var(--danger);"></div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2-4">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-green"><i class="bi bi-shield-check"></i></div>
+                    <small>Safe Transactions</small>
+                    <h3 style="color:var(--success);">{{ "{:,}".format(stats.legitimate_transactions) }}</h3>
+                    <div class="stat-card-glow" style="background:var(--success);"></div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2-4">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-teal"><i class="bi bi-percent"></i></div>
+                    <small>Fraud Rate</small>
+                    <h3 style="color:var(--accent);">{{ "%.3f"|format(stats.fraud_rate) }}%</h3>
+                    <div class="stat-card-glow" style="background:var(--accent);"></div>
+                </div>
+            </div>
+            <div class="col-6 col-xl-2-4">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-purple"><i class="bi bi-trophy-fill"></i></div>
+                    <small>Model Accuracy</small>
+                    <h3 style="color:#6f42c1;">{{ "%.2f"|format(stats.model_accuracy) }}%</h3>
+                    <div class="stat-card-glow" style="background:#6f42c1;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Real-time refresh bar ───────────────────────────────────────── -->
+        <div class="d-flex align-items-center justify-content-between mb-4 px-1">
+            <div class="d-flex align-items-center gap-2">
+                <span class="live-dot"></span>
+                <span class="text-muted" style="font-size:0.88rem;">Live data — refreshes automatically</span>
+                <span id="lastRefresh" class="text-muted" style="font-size:0.82rem;"></span>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" id="refreshStatsBtn">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+
+        <!-- ── Charts Row 1 ───────────────────────────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-pie-chart me-2" style="color:var(--primary);"></i>Fraud Distribution</h5>
+                        <span>Legitimate vs. fraudulent class balance</span>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.fraud_distribution) }}" alt="Fraud distribution chart" class="img-fluid rounded-3 w-100">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-bar-chart me-2" style="color:var(--accent);"></i>Transaction Types</h5>
+                        <span>Volume by category across the dataset</span>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.transaction_types) }}" alt="Transaction types chart" class="img-fluid rounded-3 w-100">
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Charts Row 2 ───────────────────────────────────────────────── -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-distribute-horizontal me-2" style="color:#6f42c1;"></i>Amount Distribution</h5>
+                        <span>Range and skew of transaction amounts</span>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.amount_histogram) }}" alt="Amount histogram" class="img-fluid rounded-3 w-100">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <h5><i class="bi bi-grid-3x3 me-2" style="color:var(--danger);"></i>Correlation Heatmap</h5>
+                        <span>Feature relationships and fraud correlation</span>
+                    </div>
+                    <img src="{{ url_for('static', filename=charts.heatmap) }}" alt="Correlation heatmap" class="img-fluid rounded-3 w-100">
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Latest Predictions Table ───────────────────────────────────── -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="chart-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5 class="mb-1"><i class="bi bi-clock-history me-2" style="color:var(--primary);"></i>Latest Predictions</h5>
+                            <span class="text-muted" style="font-size:0.88rem;">Most recent 10 predictions from this session</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                            <a href="{{ url_for('download_report') }}" class="btn btn-sm btn-primary"><i class="bi bi-download me-1"></i>Export CSV</a>
+                        </div>
+                    </div>
+                    {% if history %}
+                    <div class="table-responsive">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Prediction</th>
+                                    <th>Confidence</th>
+                                    <th>Model</th>
+                                    <th>Date/Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in history %}
+                                <tr>
+                                    <td>{{ item.id }}</td>
+                                    <td><span class="badge bg-secondary">{{ item.type }}</span></td>
+                                    <td>{{ item.amount }}</td>
+                                    <td>
+                                        {% if item.prediction == 'Fraud' %}
+                                            <span class="badge-fraud">❌ Fraud</span>
+                                        {% else %}
+                                            <span class="badge-safe">✔ Safe</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.confidence }}</td>
+                                    <td style="font-size:0.82rem;color:var(--muted);">{{ item.model }}</td>
+                                    <td style="font-size:0.82rem;color:var(--muted);">{{ item.timestamp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state py-4">
+                        <i class="bi bi-inbox"></i>
+                        <h6>No predictions yet</h6>
+                        <p class="mb-3">Use the <strong>Fraud Prediction</strong> page to analyze transactions — they'll appear here.</p>
+                        <a href="{{ url_for('predict_page') }}" class="btn btn-primary btn-sm px-4">Make a Prediction</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* 5-column layout for stat cards */
+@media (min-width: 1200px) {
+    .col-xl-2-4 { width: 20%; flex: 0 0 auto; }
+}
+</style>
+<script>
+// Real-time stats refresh
+async function refreshStats() {
+    try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        document.getElementById('lastRefresh').textContent = '· Last updated: ' + new Date().toLocaleTimeString();
+    } catch(e) {}
+}
+
+document.getElementById('refreshStatsBtn').addEventListener('click', () => {
+    refreshStats();
+    showToast('Dashboard stats refreshed!', 'info', 3000);
+});
+
+// Auto-refresh every 30 seconds
+setInterval(refreshStats, 30000);
+refreshStats();
+</script>
+{% endblock %}

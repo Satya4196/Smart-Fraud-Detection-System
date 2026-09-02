@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel | Fraud Detection System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow"><i class="bi bi-shield-lock-fill me-1"></i>Admin Panel</span>
+        <h1 class="page-title">Administration Dashboard</h1>
+        <p class="page-text">Manage users, view uploaded results, and monitor overall system statistics.</p>
+    </div>
+</section>
+
+<section class="pb-5 pt-4">
+    <div class="container">
+        <!-- Stat Cards Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-blue"><i class="bi bi-clock-history"></i></div>
+                    <small>Total Predictions</small>
+                    <h3>{{ all_history|length }}</h3>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-green"><i class="bi bi-database"></i></div>
+                    <small>Dataset Size</small>
+                    <h3>{{ stats.sample_size|default(0) }}</h3>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-purple"><i class="bi bi-cloud-upload"></i></div>
+                    <small>Uploaded File Results</small>
+                    <h3>{{ upload_results|length if upload_results is defined else 0 }}</h3>
+                </div>
+            </div>
+            <div class="col-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-icon-orange"><i class="bi bi-people"></i></div>
+                    <small>Registered Users</small>
+                    <h3>{{ users|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction History Section -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2" style="color:var(--primary);"></i>All Prediction History</h5>
+                <a href="{{ url_for('download_report') }}" class="btn btn-sm btn-primary"><i class="bi bi-download me-1"></i>Export CSV</a>
+            </div>
+            <div class="card-body p-0">
+                {% if all_history %}
+                <div class="table-responsive">
+                    <table class="history-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Prediction</th>
+                                <th>Confidence</th>
+                                <th>Model</th>
+                                <th>Date/Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in all_history %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><span class="badge bg-secondary">{{ item.type }}</span></td>
+                                <td>₹{{ item.amount }}</td>
+                                <td>{% if item.prediction == 'Fraud' %}<span class="badge-fraud">❌ Fraud</span>{% else %}<span class="badge-safe">✔ Safe</span>{% endif %}</td>
+                                <td>{{ item.confidence }}%</td>
+                                <td style="font-size:0.82rem;color:var(--muted);">{{ item.model }}</td>
+                                <td style="font-size:0.82rem;color:var(--muted);">{{ item.timestamp }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <i class="bi bi-inbox me-2" style="font-size:2rem;color:var(--muted);"></i>
+                    <p class="mb-0">No prediction history recorded yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Uploaded File Results -->
+        {% if upload_filename %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-cloud-upload me-2" style="color:var(--accent);"></i>Upload Results – {{ upload_filename }}</h5>
+            </div>
+            <div class="card-body">
+                {% if upload_results %}
+                <div class="table-responsive" style="max-height:400px;overflow:auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                {% for col in upload_results[0].keys() %}<th>{{ col|capitalize }}</th>{% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in upload_results[:50] %}
+                            <tr>
+                                {% for val in row.values() %}<td>{{ val }}</td>{% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No rows returned from the uploaded file.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- User Management -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-people me-2" style="color:var(--primary);"></i>Registered Users</h5>
+            </div>
+            <div class="card-body">
+                {% for user in users %}
+                    <span class="badge bg-light text-dark me-2 mb-2" style="border:1px solid var(--border);">
+                        {{ user.username }}{% if user.role == 'admin' %} <i class="bi bi-shield-lock-fill" title="Admin"></i>{% endif %}
+                    </span>
+                {% else %}
+                    <p class="text-muted">No users have been registered.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// optional admin-specific JS could go here
+</script>
+{% endblock %}

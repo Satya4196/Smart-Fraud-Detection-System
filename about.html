@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}About | Fraud Detection System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow dark">About</span>
+        <h1 class="page-title">About this project</h1>
+        <p class="page-text">A machine learning web application designed to identify suspicious financial transactions through analytics and predictive modeling.</p>
+    </div>
+</section>
+
+<section class="pb-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="analysis-card h-100">
+                    <h5>Project overview</h5>
+                    <p>This application combines a Flask backend, a Scikit-learn fraud model, and Bootstrap-driven UI components to create a complete end-to-end portfolio project.</p>
+                    <p class="mb-0">Instead of stopping at model training, the project now includes a public-facing interface, analytical dashboard, evaluation screen, and user interaction pages.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="analysis-card h-100">
+                    <h5>Technology stack</h5>
+                    <ul class="plain-list">
+                        <li>Frontend: HTML, CSS, Bootstrap 5</li>
+                        <li>Backend: Python, Flask</li>
+                        <li>Machine Learning: Scikit-learn Random Forest</li>
+                        <li>Visualization: Matplotlib and Seaborn</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="analysis-card h-100">
+                    <h5>Dataset information</h5>
+                    <p>The dashboard currently works from a sample of {{ "{:,}".format(stats.sample_size) }} transactions to keep the website responsive while still showing realistic fraud behavior and feature relationships.</p>
+                    <p class="mb-0">Core model inputs include transaction step, type, amount, and origin and destination balance values.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="analysis-card h-100">
+                    <h5>Use cases</h5>
+                    <p>This design pattern can be reused for banking fraud monitoring, credit risk tools, disease prediction apps, price estimation systems, and recommendation engines.</p>
+                    <p class="mb-0">It is a solid foundation for transforming ML models into professional full-stack products.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

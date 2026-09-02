@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional fraud detection system powered by machine learning. Analyze transactions, detect fraud, and explore data insights.">
+    <title>{% block title %}Fraud Detection System{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- ── Navbar ───────────────────────────────────────────────────────── -->
+    <nav class="navbar navbar-expand-xl navbar-dark sticky-top app-navbar">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                <span class="brand-mark">FD</span>
+                Fraud Detection
+            </a>
+            <div class="d-flex align-items-center gap-2 order-xl-last">
+                <button id="themeToggle" title="Toggle dark/light mode" aria-label="Toggle theme">
+                    <i class="bi bi-moon-fill" id="themeIcon"></i>
+                </button>
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto align-items-xl-center gap-xl-1 py-2 py-xl-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'home' %}active{% endif %}" href="{{ url_for('home') }}">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'analysis' %}active{% endif %}" href="{{ url_for('analysis') }}">
+                            <i class="bi bi-graph-up me-1"></i>Data Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'predict_page' %}active{% endif %}" href="{{ url_for('predict_page') }}">
+                            <i class="bi bi-robot me-1"></i>Predict
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'upload' %}active{% endif %}" href="{{ url_for('upload') }}">
+                            <i class="bi bi-cloud-upload me-1"></i>Upload CSV
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'history' %}active{% endif %}" href="{{ url_for('history') }}">
+                            <i class="bi bi-clock-history me-1"></i>History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'performance' %}active{% endif %}" href="{{ url_for('performance') }}">
+                            <i class="bi bi-bar-chart-line me-1"></i>Performance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'search' %}active{% endif %}" href="{{ url_for('search') }}">
+                            <i class="bi bi-search me-1"></i>Search
+                        </a>
+                    </li>
+
+                    <!-- Dropdown: More -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.endpoint in ['faq', 'technologies', 'about', 'contact'] %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-grid me-1"></i>More
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('about') }}"><i class="bi bi-info-circle me-2"></i>About</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('technologies') }}"><i class="bi bi-cpu me-2"></i>Technologies</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('faq') }}"><i class="bi bi-question-circle me-2"></i>FAQ</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('contact') }}"><i class="bi bi-envelope me-2"></i>Contact</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('download_report') }}"><i class="bi bi-download me-2"></i>Download Report</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Auth section -->
+                <ul class="navbar-nav align-items-xl-center gap-xl-1 ms-xl-2">
+                    {% if current_user %}
+                        {% if current_role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'admin' %}active{% endif %}" href="{{ url_for('admin') }}">
+                                <i class="bi bi-shield-lock me-1"></i>Admin
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <span class="nav-link" style="color:rgba(255,255,255,0.55)!important; font-size:0.82rem;">
+                                <i class="bi bi-person-circle me-1"></i>{{ current_name or current_user }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">
+                                <i class="bi bi-box-arrow-right me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-auth-pill" href="{{ url_for('login') }}">
+                                <i class="bi bi-lock me-1"></i>Login
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── Loading Overlay ──────────────────────────────────────────────── -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-ring"></div>
+        <p>Analyzing transaction...</p>
+    </div>
+
+    <!-- ── Toast Container ──────────────────────────────────────────────── -->
+    <div id="toastContainer"></div>
+
+    <!-- ── Flash Messages ───────────────────────────────────────────────── -->
+    <div class="container pt-3" id="flashContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} border-0 shadow-sm d-flex align-items-center gap-2" role="alert">
+                        {% if category == 'success' %}<i class="bi bi-check-circle-fill text-success"></i>
+                        {% elif category == 'danger' %}<i class="bi bi-exclamation-circle-fill text-danger"></i>
+                        {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                        {% else %}<i class="bi bi-info-circle-fill text-info"></i>{% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ── Footer ───────────────────────────────────────────────────────── -->
+    <footer class="app-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <span class="brand-mark" style="width:1.8rem;height:1.8rem;font-size:0.72rem;">FD</span>
+                        Fraud Detection System
+                    </div>
+                    <p class="footer-desc">A professional machine learning web application for real-time fraud risk analysis, model-backed predictions, and data-driven monitoring.</p>
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="https://github.com/Pushpanathreddy" target="_blank" class="footer-social-btn" title="GitHub"><i class="bi bi-github"></i></a>
+                        <a href="https://linkedin.com/in/-pushpa" target="_blank" class="footer-social-btn" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="mailto:egudurureddy88@gmail.com" class="footer-social-btn" title="Email"><i class="bi bi-envelope-fill"></i></a>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2 offset-lg-1">
+                    <h6 class="footer-heading">Navigation</h6>
+                    <a href="{{ url_for('home') }}" class="footer-link"><i class="bi bi-house"></i>Home</a>
+                    <a href="{{ url_for('dashboard') }}" class="footer-link"><i class="bi bi-speedometer2"></i>Dashboard</a>
+                    <a href="{{ url_for('analysis') }}" class="footer-link"><i class="bi bi-graph-up"></i>Data Analysis</a>
+                    <a href="{{ url_for('predict_page') }}" class="footer-link"><i class="bi bi-robot"></i>Fraud Prediction</a>
+                    <a href="{{ url_for('upload') }}" class="footer-link"><i class="bi bi-cloud-upload"></i>Upload CSV</a>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="footer-heading">Tools</h6>
+                    <a href="{{ url_for('history') }}" class="footer-link"><i class="bi bi-clock-history"></i>History</a>
+                    <a href="{{ url_for('performance') }}" class="footer-link"><i class="bi bi-bar-chart-line"></i>Performance</a>
+                    <a href="{{ url_for('search') }}" class="footer-link"><i class="bi bi-search"></i>Search</a>
+                    <a href="{{ url_for('download_report') }}" class="footer-link"><i class="bi bi-download"></i>Download Report</a>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="footer-heading">Info</h6>
+                    <a href="{{ url_for('about') }}" class="footer-link"><i class="bi bi-info-circle"></i>About</a>
+                    <a href="{{ url_for('technologies') }}" class="footer-link"><i class="bi bi-cpu"></i>Technologies</a>
+                    <a href="{{ url_for('faq') }}" class="footer-link"><i class="bi bi-question-circle"></i>FAQ</a>
+                    <a href="{{ url_for('contact') }}" class="footer-link"><i class="bi bi-envelope"></i>Contact</a>
+                </div>
+            </div>
+            <hr class="footer-divider">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <p class="footer-copy mb-0">© {{ current_year }} Fraud Detection System. Built with Flask, Scikit-learn &amp; Bootstrap.</p>
+                <p class="footer-copy mb-0">Made by <a href="https://github.com/Pushpanathreddy" style="color:rgba(255,255,255,0.55);">Eguduru Pushpanath Reddy</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // ── Theme Toggle ──────────────────────────────────────────────────────
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        themeIcon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        localStorage.setItem('fdTheme', theme);
+    }
+
+    const savedTheme = localStorage.getItem('fdTheme') || 'light';
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const current = html.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Toast Notification System ─────────────────────────────────────────
+    const toastContainer = document.getElementById('toastContainer');
+
+    function showToast(message, type = 'success', duration = 4000) {
+        const icons = { success: 'bi-check-circle-fill', danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill' };
+        const icon = icons[type] || icons.info;
+
+        const toast = document.createElement('div');
+        toast.className = `app-toast toast-${type}`;
+        toast.innerHTML = `
+            <i class="bi ${icon}"></i>
+            <p>${message}</p>
+            <button class="toast-dismiss" onclick="this.parentElement.remove()" aria-label="Dismiss"><i class="bi bi-x"></i></button>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = '0.3s ease'; setTimeout(() => toast.remove(), 300); }, duration);
+    }
+    window.showToast = showToast;
+
+    // Auto-toast flashed messages
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                showToast("{{ message | e }}", "{{ category }}");
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    // ── Active nav highlight ───────────────────────────────────────────────
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        if (item.href === window.location.href) item.classList.add('active');
+    });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

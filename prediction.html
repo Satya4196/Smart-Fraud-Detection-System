@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Fraud Prediction | Fraud Detection System{% endblock %}
+
+{% block content %}
+<!-- ── Page Header ────────────────────────────────────────────────────────── -->
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow"><i class="bi bi-robot me-1"></i>AI-Powered</span>
+        <h1 class="page-title">Fraud Risk Prediction</h1>
+        <p class="page-text">Enter transaction details below. The ML model will instantly classify the activity and return a colour-coded result with a confidence score.</p>
+    </div>
+</section>
+
+<section class="pb-5 pt-4">
+    <div class="container">
+        <div class="row g-4 align-items-start">
+
+            <!-- ── Prediction Form ─────────────────────────────────────────── -->
+            <div class="col-lg-7">
+                <div class="form-card">
+                    <div class="mb-4">
+                        <h5 class="mb-1"><i class="bi bi-sliders me-2" style="color:var(--primary);"></i>Transaction Details</h5>
+                        <p class="mb-0 text-muted" style="font-size:0.92rem;">Fill in the fields below. Each field has a help hint to guide you.</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('predict_page') }}" id="predictionForm" novalidate>
+                        <div class="row g-3">
+                            <!-- Model Choice -->
+                            <div class="col-12">
+                                <label class="form-label" for="model_choice">
+                                    <i class="bi bi-cpu me-1" style="color:var(--primary);"></i>Machine Learning Model
+                                </label>
+                                <select class="form-select" name="model_choice" id="model_choice" required>
+                                    {% for opt in model_options %}
+                                        <option value="{{ opt }}" {% if submitted.model_choice == opt %}selected{% endif %}>{{ opt }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="field-help">Each model has different accuracy and recall trade-offs. Random Forest is the most accurate.</div>
+                            </div>
+
+                            <!-- Step -->
+                            <div class="col-md-6">
+                                <label class="form-label" for="step">
+                                    <i class="bi bi-clock me-1" style="color:var(--accent);"></i>Transaction Time Step
+                                </label>
+                                <input type="number" class="form-control" name="step" id="step"
+                                       value="{{ submitted.step }}" placeholder="e.g. 1 to 744" min="1" required>
+                                <div class="field-help">Logical time unit (1 = 1 hour). Range: 1–744 in the dataset.</div>
+                            </div>
+
+                            <!-- Type -->
+                            <div class="col-md-6">
+                                <label class="form-label" for="type">
+                                    <i class="bi bi-tag me-1" style="color:#6f42c1;"></i>Transaction Type
+                                </label>
+                                <select class="form-select" name="type" id="type" required>
+                                    {% for t in transaction_types %}
+                                        <option value="{{ t }}" {% if submitted.type == t %}selected{% endif %}>{{ type_display_names[t] }} ({{ t }})</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="field-help">Fraud is most common in TRANSFER and CASH_OUT transactions.</div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="col-md-6">
+                                <label class="form-label" for="amount">
+                                    <i class="bi bi-currency-rupee me-1" style="color:var(--warning);"></i>Transaction Amount (₹)
+                                </label>
+                                <input type="number" step="any" class="form-control" name="amount" id="amount"
+                                       value="{{ submitted.amount }}" placeholder="e.g. 5000" min="0" required>
+                                <div class="field-help">The amount being transferred or withdrawn.</div>
+                            </div>
+
+                            <!-- Old Balance Orig -->
+                            <div class="col-md-6">
+                                <label class="form-label" for="oldbalanceOrg">
+                                    <i class="bi bi-wallet2 me-1" style="color:var(--primary);"></i>Sender Balance Before (₹)
+                                </label>
+                                <input type="number" step="any" class="form-control" name="oldbalanceOrg" id="oldbalanceOrg"
+                                       value="{{ submitted.oldbalanceOrg }}" placeholder="e.g. 12000" min="0" required>
+                                <div class="field-help">How much was in the sender's account before this transaction.</div>
+                            </div>
+
+                            <!-- New Balance Orig -->
+                            <div class="col-md-6">
+                                <label class="form-label" for="newbalanceOrig">
+                                    <i class="bi bi-wallet me-1" style="color:var(--success);"></i>Sender Balance After (₹)
+                                </label>
+                                <input type="number" step="any" class="form-control" name="newbalanceOrig" id="newbalanceOrig"
+                                       value="{{ submitted.newbalanceOrig }}" placeholder="e.g. 7000" min="0" required>
+                                <div class="field-help">How much remained in the sender's account after the transaction.</div>
+                            </div>
+
+                            <!-- Old Balance Dest -->
+                            <div class="col-md-6">
+                                <label class="form-label" for="oldbalanceDest">
+                                    <i class="bi bi-cash-stack me-1" style="color:var(--accent);"></i>Receiver Balance Before (₹)
+                                </label>
+                                <input type="number" step="any" class="form-control" name="oldbalanceDest" id="oldbalanceDest"
+                                       value="{{ submitted.oldbalanceDest }}" placeholder="e.g. 3000" min="0" required>
+                                <div class="field-help">How much was in the receiver's account before the transaction.</div>
+                            </div>
+
+                            <!-- New Balance Dest -->
+                            <div class="col-12">
+                                <label class="form-label" for="newbalanceDest">
+                                    <i class="bi bi-bank me-1" style="color:var(--danger);"></i>Receiver Balance After (₹)
+                                </label>
+                                <input type="number" step="any" class="form-control" name="newbalanceDest" id="newbalanceDest"
+                                       value="{{ submitted.newbalanceDest }}" placeholder="e.g. 8000" min="0" required>
+                                <div class="field-help">How much is in the receiver's account after the transaction.</div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                                <i class="bi bi-shield-fill-check me-2"></i>Analyze Transaction
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-lg px-4" id="demoFillButton">
+                                <i class="bi bi-lightning me-2"></i>Try Demo Values
+                            </button>
+                            <button type="button" class="btn btn-outline-danger btn-lg px-4" id="fraudDemoBtn">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Try Fraud Example
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ── Result Card ─────────────────────────────────────────────── -->
+            <div class="col-lg-5">
+                <div class="result-card p-4">
+                    <span class="eyebrow dark"><i class="bi bi-clipboard-data me-1"></i>Prediction Output</span>
+
+                    {% if result %}
+                        <div class="text-center my-3">
+                            {% if result.status == 'safe' %}
+                                <div class="prediction-result-icon">✅</div>
+                                <div class="prediction-badge safe fs-5">
+                                    <i class="bi bi-shield-fill-check"></i>
+                                    {{ result.label }}
+                                </div>
+                            {% else %}
+                                <div class="prediction-result-icon">🚨</div>
+                                <div class="prediction-badge high-risk fs-5">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                    {{ result.label }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if result.probability is not none %}
+                        <div class="confidence-circle-wrap mt-3">
+                            {% set pct = result.confidence %}
+                            {% set deg = (pct / 100 * 360)|round|int %}
+                            <div class="confidence-ring"
+                                 style="--pct:{{ deg }}deg; --ring-color:{% if result.status == 'safe' %}var(--success){% else %}var(--danger){% endif %};">
+                                <span>{{ "%.1f"|format(pct) }}%</span>
+                            </div>
+                            <div class="mt-2 text-center" style="font-size:0.88rem;color:var(--muted);">
+                                Confidence Score
+                            </div>
+                        </div>
+
+                        <div class="confidence-block">
+                            <div class="d-flex justify-content-between small mb-2">
+                                <span style="color:var(--muted);">Fraud Probability</span>
+                                <strong>{{ "%.2f"|format(result.probability) }}%</strong>
+                            </div>
+                            <div class="progress mb-1" role="progressbar">
+                                <div class="progress-bar {% if result.status == 'safe' %}safe-bar{% endif %}"
+                                     style="width: {{ result.probability }}%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small" style="color:var(--muted);">
+                                <span>Safe (0%)</span><span>Fraud (100%)</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-3 p-3 rounded-3" style="background:var(--bg-soft);font-size:0.88rem;">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span style="color:var(--muted);">Model Used</span>
+                                <strong>{{ result.model_used }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span style="color:var(--muted);">Transaction Type</span>
+                                <strong>{{ submitted.type }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color:var(--muted);">Amount</span>
+                                <strong>₹{{ submitted.amount }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{{ url_for('download_report') }}" class="btn btn-sm btn-primary flex-fill">
+                                <i class="bi bi-download me-1"></i>Download Report
+                            </a>
+                            <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary flex-fill">
+                                <i class="bi bi-clock-history me-1"></i>View History
+                            </a>
+                        </div>
+
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-shield-lock"></i>
+                        <h5>Awaiting Input</h5>
+                        <p>Fill in the form and click <strong>Analyze Transaction</strong> to see the fraud risk assessment here.</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Quick Help -->
+                    <div class="prediction-tip">
+                        <h6><i class="bi bi-lightbulb me-1" style="color:var(--warning);"></i>Quick Help</h6>
+                        <ul class="plain-list mb-0" style="font-size:0.88rem;">
+                            <li><strong>TRANSFER</strong> = Move money between accounts (highest fraud risk)</li>
+                            <li><strong>CASH_OUT</strong> = Withdraw cash (second highest fraud risk)</li>
+                            <li><strong>PAYMENT</strong> = Pay for goods/services (low fraud risk)</li>
+                            <li>Use <em>Try Demo Values</em> or <em>Try Fraud Example</em> buttons to test the model</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById('predictionForm');
+const submitBtn = document.getElementById('submitBtn');
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+// Show loading overlay on submit
+form.addEventListener('submit', function(e) {
+    if (!form.checkValidity()) {
+        e.preventDefault();
+        form.classList.add('was-validated');
+        showToast('❌ Please fill in all required fields.', 'danger');
+        return;
+    }
+    loadingOverlay.classList.add('active');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+});
+
+// Demo — Safe Transaction
+document.getElementById('demoFillButton').addEventListener('click', function() {
+    form.elements['model_choice'].value = 'Random Forest';
+    form.elements['step'].value = 8;
+    form.elements['type'].value = 'PAYMENT';
+    form.elements['amount'].value = 1500;
+    form.elements['oldbalanceOrg'].value = 25000;
+    form.elements['newbalanceOrig'].value = 23500;
+    form.elements['oldbalanceDest'].value = 5000;
+    form.elements['newbalanceDest'].value = 6500;
+    showToast('✔ Demo values loaded — this should predict Safe.', 'info');
+});
+
+// Demo — Fraud Transaction
+document.getElementById('fraudDemoBtn').addEventListener('click', function() {
+    form.elements['model_choice'].value = 'Random Forest';
+    form.elements['step'].value = 206;
+    form.elements['type'].value = 'TRANSFER';
+    form.elements['amount'].value = 181272;
+    form.elements['oldbalanceOrg'].value = 181272;
+    form.elements['newbalanceOrig'].value = 0;
+    form.elements['oldbalanceDest'].value = 0;
+    form.elements['newbalanceDest'].value = 0;
+    showToast('⚠ Fraud example loaded — typical account-emptying fraud pattern.', 'warning');
+});
+
+{% if result %}
+// Show toast after prediction result
+{% if result.status == 'safe' %}
+showToast('✔ Prediction Completed — Transaction appears Legitimate!', 'success');
+{% else %}
+showToast('🚨 Prediction Completed — Fraudulent Transaction Detected!', 'danger');
+{% endif %}
+{% endif %}
+</script>
+{% endblock %}

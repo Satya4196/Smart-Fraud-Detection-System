@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Contact | Fraud Detection System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <span class="eyebrow dark">Contact</span>
+        <h1 class="page-title">Get in touch</h1>
+        <p class="page-text">Use this page as a professional contact section for your project demo or portfolio showcase.</p>
+    </div>
+</section>
+
+<section class="pb-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="analysis-card h-100">
+                    <h5>Contact information</h5>
+                    <p>You can use these details on your project website, portfolio, or resume showcase.</p>
+                    <div class="contact-point">
+                        <i class="bi bi-person-circle"></i>
+                        <span><strong>Name:</strong> Eguduru Pushpanath Reddy</span>
+                    </div>
+                    <div class="contact-point">
+                        <i class="bi bi-envelope"></i>
+                        <span><strong>Email:</strong> <a href="mailto:egudurureddy88@gmail.com">egudurureddy88@gmail.com</a></span>
+                    </div>
+                    <div class="contact-point">
+                        <i class="bi bi-telephone"></i>
+                        <span><strong>Phone:</strong> <a href="tel:9553570063">9553570063</a></span>
+                    </div>
+                    <div class="contact-point">
+                        <i class="bi bi-geo-alt"></i>
+                        <span><strong>Location:</strong> Available on request</span>
+                    </div>
+                    <div class="contact-point">
+                        <i class="bi bi-github"></i>
+                        <span><strong>GitHub:</strong> <a href="https://github.com/Pushpanathreddy" target="_blank">github.com/Pushpanathreddy</a></span>
+                    </div>
+                    <div class="contact-point mb-0">
+                        <i class="bi bi-linkedin"></i>
+                        <span><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/-pushpa" target="_blank">linkedin.com/in/-pushpa</a></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="form-card">
+                    <form method="POST" action="{{ url_for('contact') }}">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control form-control-lg" name="name" placeholder="Your name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control form-control-lg" name="email" placeholder="Your email" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Message</label>
+                                <textarea class="form-control" name="message" rows="6" placeholder="Write your message here..." required></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg mt-4 px-4">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
